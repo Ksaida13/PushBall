@@ -102,7 +102,7 @@
             
             console.log('Telegram Web App инициализирован');
           }
-          
+          sendValidationRequest()
           console.log('Telegram Web App инициализирован');
         } else {
           console.log('Telegram Web App API недоступен');
@@ -174,6 +174,35 @@
         }).catch((error) => {
           console.error('Ошибка загрузки Unity:', error);
         });
+
+      // Отправка данных при открытии WebApp
+      function sendValidationRequest() {
+          const data = {
+              action: 'validate_access',
+              user_id: window.Telegram.WebApp.initDataUnsafe.user?.id,
+              timestamp: Date.now()
+          };
+          
+          window.Telegram.WebApp.sendData(JSON.stringify(data));
+      }
+      
+      // Вызов при загрузке страницы
+      // window.addEventListener('load', sendValidationRequest);
+
+      // Функция для закрытия WebApp
+      function closeWebApp() {
+          if (window.Telegram?.WebApp?.close) {
+              window.Telegram.WebApp.close();
+          }
+      }
+      
+      // Слушаем сообщения от бота через события
+      window.addEventListener('message', (event) => {
+          if (event.data.type === 'validation_failed') {
+              closeWebApp();
+          }
+      });
+
 
       // Предотвращаем случайное закрытие приложения
       window.addEventListener('beforeunload', function(e) {
