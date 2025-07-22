@@ -287,26 +287,26 @@
         function showAlertAndClose(message) {
             addDebugMessage(`Показываем алерт: ${message}`, 'info');
             
-            if (tg && tg.showAlert) {
-                addDebugMessage('Используем tg.showAlert()', 'info');
-                tg.showAlert(message, () => {
-                    addDebugMessage('Callback алерта выполнен, закрываем WebApp', 'info');
-                    if (tg.close) {
-                        tg.close();
-                        addDebugMessage('tg.close() выполнен', 'info');
-                    } else {
-                        addDebugMessage('⚠️ tg.close() недоступен', 'error');
-                    }
-                });
-            } else {
-                addDebugMessage('⚠️ tg.showAlert() недоступен, используем alert()', 'error');
-                alert(message);
-                if (tg && tg.close) {
-                    tg.close();
-                } else {
-                    window.close();
-                }
-            }
+            // if (tg && tg.showAlert) {
+            //     addDebugMessage('Используем tg.showAlert()', 'info');
+            //     tg.showAlert(message, () => {
+            //         addDebugMessage('Callback алерта выполнен, закрываем WebApp', 'info');
+            //         if (tg.close) {
+            //             tg.close();
+            //             addDebugMessage('tg.close() выполнен', 'info');
+            //         } else {
+            //             addDebugMessage('⚠️ tg.close() недоступен', 'error');
+            //         }
+            //     });
+            // } else {
+            //     addDebugMessage('⚠️ tg.showAlert() недоступен, используем alert()', 'error');
+            //     alert(message);
+            //     if (tg && tg.close) {
+            //         tg.close();
+            //     } else {
+            //         window.close();
+            //     }
+            // }
         }
 
         // Загрузка Unity игры
