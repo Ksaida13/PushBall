@@ -254,6 +254,7 @@
                 try {
                     const response = await fetch(FLYER_API_URL, {
                         method: 'POST',
+                        mode: 'cors',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
