@@ -94,6 +94,7 @@
             try {
                 if (!window.Telegram || !window.Telegram.WebApp) {
                     console.error('Telegram WebApp API не доступен');
+                    closeWebApp()
                     return;
                 }
                 
@@ -101,6 +102,7 @@
                 
                 if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
                     console.error('Данные пользователя недоступны');
+                    closeWebApp()
                     return;
                 }
                 
