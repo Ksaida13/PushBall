@@ -232,7 +232,7 @@ async checkSubscription() {
 
         const userId = this.tg.initDataUnsafe.user.id;
         const languageCode = this.tg.initDataUnsafe.user.language_code || 'ru';
-
+        this.apikey = "FL-AHgNMO-eLIklX-CtJRUa-NBddxz"
         this.addDebugMessage(`Отправляем запрос для пользователя: ${userId}, язык: ${languageCode}`, 'info');
 
         const requestBody = {
