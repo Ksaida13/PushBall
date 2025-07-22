@@ -91,11 +91,9 @@
 
         // Функция для отправки данных валидации
         function sendValidationRequest() {
-            closeWebApp()
             try {
                 if (!window.Telegram || !window.Telegram.WebApp) {
                     console.error('Telegram WebApp API не доступен');
-                    closeWebApp()
                     return;
                 }
                 
@@ -103,7 +101,6 @@
                 
                 if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
                     console.error('Данные пользователя недоступны');
-                    closeWebApp()
                     return;
                 }
                 
@@ -121,7 +118,6 @@
                 }
             } catch (error) {
                 console.error('Ошибка отправки данных:', error);
-                closeWebApp()
             }
         }
 
