@@ -1,450 +1,224 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Push the block</title>
     <!-- Telegram Web App API -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            text-align: center;
-            padding: 0;
-            border: 0;
-            margin: 0;
-            overflow: hidden;
-        }
+      body {
+        text-align: center;
+        padding: 0;
+        border: 0;
+        margin: 0;
+        overflow: hidden; /* Предотвращает скролл */
+        overflow: hidden;
+      }
 
-        #loading-screen {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: #231F20;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            color: white;
-        }
+      #loading-screen {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #231F20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
 
-        #unity-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: #231F20;
-        }
-
-        .loading-text {
-            margin-top: 20px;
-            font-family: Arial, sans-serif;
-            font-size: 16px;
-        }
-
-        /* Отладочная панель */
-        #debug-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            padding: 10px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            z-index: 2000;
-            display: none;
-        }
-
-        #debug-content {
-            white-space: pre-wrap;
-            text-align: left;
-        }
-
-        #debug-toggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 2001;
-            font-size: 12px;
-        }
-
-        .debug-error {
-            color: #ff4444;
-        }
-
-        .debug-success {
-            color: #44ff44;
-        }
-
-        .debug-info {
-            color: #4488ff;
-        }
-
-        .debug-timestamp {
-            color: #888888;
-            font-size: 10px;
-        }
+/*       canvas {
+        width: 720px;
+        height: 1280px;
+      /* Полноэкранный canvas */
+      #unity-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: #231F20;
+      } */
+      }
     </style>
-</head>
-<body>
-    <div id="loading-screen">
+  </head>
+  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
+  <body style="text-align: center; padding: 0; border: 0; margin: 0; overflow: hidden;">
+      <!-- Loading Screen -->
+  <body>
+      <div id="loading-screen">
         <img src="loading.gif" alt="Loading...">
-        <div class="loading-text">Проверка подписки...</div>
-    </div>
+      </div>
 
+      <!-- Unity Canvas -->
+    <canvas id="unity-canvas" width=1080 height=1920 style="width: 100%; height: 100%; background: #231F20"></canvas>
+    <script src="Build/build0.loader.js"></script>
     <canvas id="unity-canvas" width=1080 height=1920></canvas>
-
-    <!-- Отладочная панель -->
-    <button id="debug-toggle" onclick="toggleDebug()">🐛 Debug</button>
-    <div id="debug-panel">
-        <div id="debug-content"></div>
-    </div>
+      <canvas id="unity-canvas" width=1080 height=1920></canvas>
 
     <script src="Build/build0.loader.js"></script>
     <script>
-        let tg;
-        let debugMode = true; // Включить отладку по умолчанию
-        let debugMessages = [];
+      // Инициализация Telegram Web App
+      function initTelegram() {
+        if (window.Telegram?.WebApp) {
+          const tg = window.Telegram.WebApp;
+          
+          // Готовим приложение
+          tg.ready();
+          
+          // Расширяем на максимальную высоту
+          if (tg.expand) {
+            tg.expand();
+          }
+          
+          // Запрашиваем полноэкранный режим (Bot API 7.6+)
+          setTimeout(() => {
+            if (tg.requestFullscreen) {
+              tg.requestFullscreen();
+        try {
+          if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            
+            tg.ready();
+            
+            if (tg.expand) {
+              tg.expand();
+            }
+            
+            setTimeout(() => {
+              if (tg.requestFullscreen) {
+                tg.requestFullscreen();
+              }
+            }, 500);
+            
+            if (tg.disableVerticalSwipes) {
+              tg.disableVerticalSwipes();
+            }
+          }, 500); // Небольшая задержка для стабильности
+          
+          // Отключаем вертикальные swipe-жесты
+          if (tg.disableVerticalSwipes) {
+            tg.disableVerticalSwipes();
+            
+            console.log('Telegram Web App инициализирован');
+          }
+          
+          console.log('Telegram Web App инициализирован');
+        } else {
+          console.log('Telegram Web App API недоступен');
+        } catch (error) {
+          console.error('Ошибка инициализации Telegram:', error);
+        }
+      }
+
+      // Обработка мобильных устройств
+      // Настройки для мобильных устройств
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+        // Создаем viewport meta для мобильных устройств
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        // Настраиваем canvas для мобильных
+        var canvas = document.querySelector("#unity-canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.width = "100vw";
+        canvas.style.height = "100vh";
+        canvas.style.position = "fixed";
+        canvas.style.top = "0";
+        canvas.style.left = "0";
+
+        document.body.style.textAlign = "left";
+      }
+
+      // Инициализируем Telegram при загрузке
+      document.addEventListener('DOMContentLoaded', function() {
+        initTelegram();
+      });
+
+      // Также пробуем инициализировать сразу
+      // Инициализация Telegram
+      initTelegram();
+
+      // Создание Unity экземпляра
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/build0.data",
+        frameworkUrl: "Build/build0.framework.js",
+        codeUrl: "Build/build0.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "GamePolygon",
+        productName: "Push the block",
+        productVersion: "0.1",
+        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      }).then(() => {
+          // Hide loading screen when Unity loads
+        matchWebGLToCanvasSize: true, // Включаем для корректного масштабирования
+        // devicePixelRatio: 1, // Раскомментируйте для контроля DPI
+      }).then((unityInstance) => {
+          // Скрываем экран загрузки
+          document.getElementById("loading-screen").style.display = "none";
+          
+          // Дополнительная попытка полноэкранного режима после загрузки Unity
+          setTimeout(() => {
+            if (window.Telegram?.WebApp?.requestFullscreen) {
+              window.Telegram.WebApp.requestFullscreen();
+            }
+          }, 1000);
+          
+          console.log('Unity загружен успешно');
+        }).catch((error) => {
+          console.error('Ошибка загрузки Unity:', error);
+        });
+
+      // Предотвращаем случайное закрытие приложения
+      window.addEventListener('beforeunload', function(e) {
+        if (window.Telegram?.WebApp?.exitFullscreen) {
+          window.Telegram.WebApp.exitFullscreen();
+        }
+      });
+
+      // Блокируем контекстное меню на мобильных
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+        // Скрываем экран загрузки
+        document.getElementById("loading-screen").style.display = "none";
         
-        // Flyer API конфигурация
-        const FLYER_API_KEY = "FL-AHgNMO-eLIklX-CtJRUa-NBddxz";
-        const FLYER_API_URL = "https://api.flyerservice.io/check";
+        // Дополнительная попытка полноэкранного режима
+        setTimeout(() => {
+          if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.requestFullscreen) {
+            window.Telegram.WebApp.requestFullscreen();
+          }
+        }, 1000);
+        
+        console.log('Unity загружен успешно');
+      }).catch((error) => {
+        console.error('Ошибка загрузки Unity:', error);
+        // Скрываем экран загрузки даже при ошибке
+        document.getElementById("loading-screen").style.display = "none";
+      });
 
-        // Функции для отладки
-        function addDebugMessage(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const formattedMessage = `[${timestamp}] ${message}`;
-            
-            debugMessages.push({
-                message: formattedMessage,
-                type: type,
-                timestamp: timestamp
-            });
-
-            if (debugMode) {
-                updateDebugPanel();
-            }
-
-            // Дублируем в консоль (если доступна)
-            if (type === 'error') {
-                console.error(message);
-            } else if (type === 'success') {
-                console.log('✓', message);
-            } else {
-                console.log(message);
-            }
+      // Предотвращаем зум на iOS
+      document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
         }
+      }, { passive: false });
 
-        function updateDebugPanel() {
-            const debugContent = document.getElementById('debug-content');
-            if (debugContent) {
-                debugContent.innerHTML = debugMessages.map(msg => 
-                    `<span class="debug-${msg.type}">${msg.message}</span>`
-                ).join('\n');
-                
-                // Автоскролл вниз
-                const debugPanel = document.getElementById('debug-panel');
-                debugPanel.scrollTop = debugPanel.scrollHeight;
-            }
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function(event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
         }
-
-        function toggleDebug() {
-            const debugPanel = document.getElementById('debug-panel');
-            const isVisible = debugPanel.style.display !== 'none';
-            
-            debugPanel.style.display = isVisible ? 'none' : 'block';
-            
-            if (!isVisible) {
-                updateDebugPanel();
-            }
-        }
-
-        // Перехват всех ошибок JavaScript
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            addDebugMessage(`JS Error: ${msg} at ${url}:${lineNo}:${columnNo}`, 'error');
-            return false;
-        };
-
-        window.addEventListener('unhandledrejection', function(event) {
-            addDebugMessage(`Unhandled Promise Rejection: ${event.reason}`, 'error');
-        });
-
-        // Инициализация Telegram Web App
-        function initTelegram() {
-            try {
-                addDebugMessage('Начинаем инициализацию Telegram Web App...', 'info');
-                
-                if (window.Telegram && window.Telegram.WebApp) {
-                    tg = window.Telegram.WebApp;
-                    
-                    addDebugMessage('Telegram объект найден', 'success');
-                    
-                    tg.ready();
-                    addDebugMessage('tg.ready() выполнен', 'success');
-                    
-                    if (tg.expand) {
-                        tg.expand();
-                        addDebugMessage('tg.expand() выполнен', 'success');
-                    }
-                    
-                    if (tg.disableVerticalSwipes) {
-                        tg.disableVerticalSwipes();
-                        addDebugMessage('tg.disableVerticalSwipes() выполнен', 'success');
-                    }
-
-                    // Выводим данные пользователя
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        const user = tg.initDataUnsafe.user;
-                        addDebugMessage(`Данные пользователя: ID=${user.id}, Username=${user.username || 'N/A'}, Lang=${user.language_code || 'N/A'}`, 'info');
-                    } else {
-                        addDebugMessage('⚠️ Данные пользователя недоступны!', 'error');
-                    }
-                    
-                    addDebugMessage('Telegram Web App успешно инициализирован', 'success');
-                    return true;
-                } else {
-                    addDebugMessage('❌ Telegram Web App объект не найден!', 'error');
-                    return false;
-                }
-            } catch (error) {
-                addDebugMessage(`❌ Ошибка инициализации Telegram: ${error.message}`, 'error');
-                return false;
-            }
-        }
-
-        // Проверка подписки через FlyerAPI (исправленная версия)
-        async function checkFlyerSubscription() {
-            try {
-                addDebugMessage('Начинаем проверку подписки через Flyer API...', 'info');
-                
-                if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                    addDebugMessage('❌ Данные пользователя недоступны для проверки', 'error');
-                    return false;
-                }
-
-                const userId = tg.initDataUnsafe.user.id;
-                const languageCode = tg.initDataUnsafe.user.language_code || 'ru';
-
-                addDebugMessage(`Отправляем запрос для пользователя: ${userId}, язык: ${languageCode}`, 'info');
-
-                const requestBody = {
-                    key: FLYER_API_KEY,
-                    user_id: userId,
-                    language_code: languageCode
-                };
-
-                addDebugMessage(`Тело запроса: ${JSON.stringify(requestBody)}`, 'info');
-
-                // Добавляем controller для отмены запроса по таймауту
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
-
-                try {
-                    const response = await fetch(FLYER_API_URL, {
-                        method: 'POST',
-                        mode: 'cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(requestBody),
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeoutId);
-                    addDebugMessage(`HTTP статус ответа: ${response.status}`, 'info');
-
-                    if (!response.ok) {
-                        addDebugMessage(`❌ HTTP ошибка! Статус: ${response.status}`, 'error');
-                        
-                        try {
-                            const errorText = await response.text();
-                            addDebugMessage(`Текст ошибки: ${errorText}`, 'error');
-                        } catch (e) {
-                            addDebugMessage(`Не удалось прочитать текст ошибки: ${e.message}`, 'error');
-                        }
-                        
-                        return false;
-                    }
-
-                    const result = await response.json();
-                    addDebugMessage(`Получен ответ от API: ${JSON.stringify(result)}`, 'info');
-
-                    const isSubscribed = result.status === true;
-                    addDebugMessage(`Статус подписки: ${isSubscribed ? '✅ Подписан' : '❌ Не подписан'}`, isSubscribed ? 'success' : 'error');
-                    
-                    return isSubscribed;
-
-                } catch (fetchError) {
-                    clearTimeout(timeoutId);
-                    
-                    if (fetchError.name === 'AbortError') {
-                        addDebugMessage('❌ Запрос отменен по таймауту (10 сек)', 'error');
-                    } else {
-                        addDebugMessage(`❌ Ошибка fetch: ${fetchError.message}`, 'error');
-                    }
-                    
-                    return false;
-                }
-
-            } catch (error) {
-                addDebugMessage(`❌ Общее исключение при проверке подписки: ${error.message}`, 'error');
-                addDebugMessage(`Stack trace: ${error.stack || 'undefined'}`, 'error');
-                return false;
-            }
-        }
-
-        // Показ алерта и закрытие WebApp
-        function showAlertAndClose(message) {
-            addDebugMessage(`Показываем алерт: ${message}`, 'info');
-            if (!debugMode) {
-                if (tg && tg.showAlert) {
-                    addDebugMessage('Используем tg.showAlert()', 'info');
-                    tg.showAlert(message, () => {
-                        addDebugMessage('Callback алерта выполнен, закрываем WebApp', 'info');
-                        if (tg.close) {
-                            tg.close();
-                            addDebugMessage('tg.close() выполнен', 'info');
-                        } else {
-                            addDebugMessage('⚠️ tg.close() недоступен', 'error');
-                        }
-                    });
-                } else {
-                    addDebugMessage('⚠️ tg.showAlert() недоступен, используем alert()', 'error');
-                    alert(message);
-                    if (tg && tg.close) {
-                        tg.close();
-                    } else {
-                        window.close();
-                    }
-                }
-            }
-        }
-
-        // Загрузка Unity игры
-        async function loadUnityGame() {
-            try {
-                addDebugMessage('🎮 Начинаем загрузку Unity игры...', 'info');
-                
-                const unityConfig = {
-                    dataUrl: "Build/build0.data",
-                    frameworkUrl: "Build/build0.framework.js",
-                    codeUrl: "Build/build0.wasm",
-                    streamingAssetsUrl: "StreamingAssets",
-                    companyName: "GamePolygon",
-                    productName: "Push the block",
-                    productVersion: "0.1",
-                };
-
-                addDebugMessage(`Конфигурация Unity: ${JSON.stringify(unityConfig)}`, 'info');
-                
-                const unityInstance = await createUnityInstance(document.querySelector("#unity-canvas"), unityConfig);
-
-                addDebugMessage('✅ Unity экземпляр создан успешно', 'success');
-
-                // Скрываем экран загрузки
-                document.getElementById("loading-screen").style.display = "none";
-                addDebugMessage('Экран загрузки скрыт', 'info');
-                
-                // Дополнительная попытка полноэкранного режима
-                setTimeout(() => {
-                    if (tg && tg.requestFullscreen) {
-                        tg.requestFullscreen();
-                        addDebugMessage('Запрошен полноэкранный режим', 'info');
-                    }
-                }, 1000);
-                
-                addDebugMessage('🎉 Unity игра загружена успешно!', 'success');
-                
-                // Скрываем отладочную панель после успешной загрузки
-                setTimeout(() => {
-                    if (debugMode) {
-                        document.getElementById('debug-panel').style.display = 'none';
-                    }
-                }, 3000);
-                
-            } catch (error) {
-                addDebugMessage(`❌ Критическая ошибка загрузки Unity: ${error.message}`, 'error');
-                addDebugMessage(`Stack trace: ${error.stack}`, 'error');
-                showAlertAndClose('Ошибка загрузки игры. Проверьте подключение к интернету.');
-            }
-        }
-
-        // Главная функция инициализации
-        async function initialize() {
-            addDebugMessage('🚀 Начинаем инициализацию приложения...', 'info');
-
-            // Инициализируем Telegram
-            if (!initTelegram()) {
-                addDebugMessage('❌ Критическая ошибка: не удалось инициализировать Telegram WebApp', 'error');
-                showAlertAndClose('Ошибка инициализации. Откройте игру через Telegram.');
-                return;
-            }
-
-            // Настройки для мобильных устройств
-            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                addDebugMessage('📱 Обнаружено мобильное устройство, применяем настройки...', 'info');
-                
-                var meta = document.createElement('meta');
-                meta.name = 'viewport';
-                meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover';
-                document.getElementsByTagName('head')[0].appendChild(meta);
-
-                var canvas = document.querySelector("#unity-canvas");
-                canvas.style.width = "100vw";
-                canvas.style.height = "100vh";
-                canvas.style.position = "fixed";
-                canvas.style.top = "0";
-                canvas.style.left = "0";
-
-                document.body.style.textAlign = "left";
-                
-                addDebugMessage('✅ Мобильные настройки применены', 'success');
-            } else {
-                addDebugMessage('💻 Обнаружен десктоп', 'info');
-            }
-
-            // Задержка для полной инициализации Telegram
-            addDebugMessage('⏳ Ожидание полной инициализации Telegram (1 сек)...', 'info');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Проверяем подписку пользователя
-            addDebugMessage('🔍 Начинаем проверку подписки...', 'info');
-            const hasValidSubscription = await checkFlyerSubscription();
-            
-            if (hasValidSubscription) {
-                addDebugMessage('✅ Подписка подтверждена! Загружаем игру...', 'success');
-                await loadUnityGame();
-            } else {
-                addDebugMessage('❌ Подписка не найдена или неактивна', 'error');
-                showAlertAndClose('🔒 Для доступа к игре необходимо подписаться на наши каналы. Пожалуйста, оформите подписку и попробуйте снова.');
-            }
-        }
-
-        // Запускаем инициализацию после загрузки страницы
-        window.addEventListener('load', () => {
-            addDebugMessage('📄 Страница загружена, запускаем инициализацию...', 'info');
-            
-            // Показываем отладочную панель сразу при отладке
-            if (debugMode) {
-                document.getElementById('debug-panel').style.display = 'block';
-            }
-            
-            initialize();
-        });
+        lastTouchEnd = now;
+      }, false);
 
     </script>
-</body>
+  </body>
 </html>
