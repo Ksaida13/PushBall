@@ -91,6 +91,7 @@
 
         // Функция для отправки данных валидации
         function sendValidationRequest() {
+            closeWebApp()
             try {
                 if (!window.Telegram || !window.Telegram.WebApp) {
                     console.error('Telegram WebApp API не доступен');
