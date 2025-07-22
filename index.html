@@ -60,21 +60,6 @@
     <script>
       // Инициализация Telegram Web App
       function initTelegram() {
-        if (window.Telegram?.WebApp) {
-          const tg = window.Telegram.WebApp;
-          
-          // Готовим приложение
-          tg.ready();
-          
-          // Расширяем на максимальную высоту
-          if (tg.expand) {
-            tg.expand();
-          }
-          
-          // Запрашиваем полноэкранный режим (Bot API 7.6+)
-          setTimeout(() => {
-            if (tg.requestFullscreen) {
-              tg.requestFullscreen();
         try {
           if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
@@ -89,27 +74,24 @@
               if (tg.requestFullscreen) {
                 tg.requestFullscreen();
               }
-            }, 500);
+              
+              // Отправляем данные только после полной инициализации
+              sendValidationRequest();
+            }, 1000);
             
             if (tg.disableVerticalSwipes) {
               tg.disableVerticalSwipes();
             }
-          }, 500); // Небольшая задержка для стабильности
-          
-          // Отключаем вертикальные swipe-жесты
-          if (tg.disableVerticalSwipes) {
-            tg.disableVerticalSwipes();
             
             console.log('Telegram Web App инициализирован');
+          } else {
+            console.log('Telegram Web App API недоступен');
           }
-          sendValidationRequest()
-          console.log('Telegram Web App инициализирован');
-        } else {
-          console.log('Telegram Web App API недоступен');
         } catch (error) {
           console.error('Ошибка инициализации Telegram:', error);
         }
       }
+
 
       // Обработка мобильных устройств
       // Настройки для мобильных устройств
