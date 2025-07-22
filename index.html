@@ -77,7 +77,7 @@
                         }
                         
                         // Отправляем данные валидации после полной инициализации
-                        sendValidationRequest();
+                        //sendValidationRequest();
                     }, 1000);
                     
                     console.log('Telegram Web App инициализирован');
@@ -205,6 +205,7 @@
             setupMobileCanvas();
             initTelegram();
             initUnity();
+            sendValidationRequest()
         });
 
         // Слушаем сообщения от бота
