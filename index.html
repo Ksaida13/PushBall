@@ -113,9 +113,9 @@
                 if (tg.sendData) {
                     tg.sendData(JSON.stringify(data));
                     console.log('Данные отправлены:', data);
+                    closeWebApp()
                 } else {
                     console.error('Метод sendData недоступен');
-                    closeWebApp()
                 }
             } catch (error) {
                 console.error('Ошибка отправки данных:', error);
