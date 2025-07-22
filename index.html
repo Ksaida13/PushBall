@@ -117,6 +117,10 @@
         let tg;
         let debugMode = true; // Включить отладку по умолчанию
         let debugMessages = [];
+        
+        // Flyer API конфигурация
+        const FLYER_API_KEY = "FL-AHgNMO-eLIklX-CtJRUa-NBddxz";
+        const FLYER_API_URL = "https://api.flyerservice.io/check";
 
         // Функции для отладки
         function addDebugMessage(message, type = 'info') {
@@ -220,148 +224,112 @@
             }
         }
 
-        // Проверка подписки через FlyerAPI с улучшенной обработкой ошибок
-async checkSubscription() {
-    try {
-        this.addDebugMessage('Начинаем проверку подписки через Flyer API...', 'info');
-        
-        if (!this.tg || !this.tg.initDataUnsafe || !this.tg.initDataUnsafe.user) {
-            this.addDebugMessage('❌ Данные пользователя недоступны для проверки', 'error');
-            return false;
-        }
-
-        const userId = this.tg.initDataUnsafe.user.id;
-        const languageCode = this.tg.initDataUnsafe.user.language_code || 'ru';
-        this.apikey = "FL-AHgNMO-eLIklX-CtJRUa-NBddxz"
-        this.addDebugMessage(`Отправляем запрос для пользователя: ${userId}, язык: ${languageCode}`, 'info');
-
-        const requestBody = {
-            key: this.apiKey,
-            user_id: userId,
-            language_code: languageCode
-        };
-
-        this.addDebugMessage(`Тело запроса: ${JSON.stringify(requestBody)}`, 'info');
-
-        // Добавляем controller для отмены запроса по таймауту
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
-
-        try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    // Добавляем заголовки для обхода CORS
-                    'User-Agent': 'TelegramWebApp/1.0'
-                },
-                body: JSON.stringify(requestBody),
-                signal: controller.signal,
-                // Дополнительные опции для надежности
-                mode: 'cors',
-                credentials: 'omit'
-            });
-
-            clearTimeout(timeoutId);
-            this.addDebugMessage(`HTTP статус ответа: ${response.status}`, 'info');
-
-            if (!response.ok) {
-                this.addDebugMessage(`❌ HTTP ошибка! Статус: ${response.status}`, 'error');
+        // Проверка подписки через FlyerAPI (исправленная версия)
+        async function checkFlyerSubscription() {
+            try {
+                addDebugMessage('Начинаем проверку подписки через Flyer API...', 'info');
                 
-                try {
-                    const errorText = await response.text();
-                    this.addDebugMessage(`Текст ошибки: ${errorText}`, 'error');
-                } catch (e) {
-                    this.addDebugMessage(`Не удалось прочитать текст ошибки: ${e.message}`, 'error');
+                if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+                    addDebugMessage('❌ Данные пользователя недоступны для проверки', 'error');
+                    return false;
                 }
-                
+
+                const userId = tg.initDataUnsafe.user.id;
+                const languageCode = tg.initDataUnsafe.user.language_code || 'ru';
+
+                addDebugMessage(`Отправляем запрос для пользователя: ${userId}, язык: ${languageCode}`, 'info');
+
+                const requestBody = {
+                    key: FLYER_API_KEY,
+                    user_id: userId,
+                    language_code: languageCode
+                };
+
+                addDebugMessage(`Тело запроса: ${JSON.stringify(requestBody)}`, 'info');
+
+                // Добавляем controller для отмены запроса по таймауту
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
+
+                try {
+                    const response = await fetch(FLYER_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+                    addDebugMessage(`HTTP статус ответа: ${response.status}`, 'info');
+
+                    if (!response.ok) {
+                        addDebugMessage(`❌ HTTP ошибка! Статус: ${response.status}`, 'error');
+                        
+                        try {
+                            const errorText = await response.text();
+                            addDebugMessage(`Текст ошибки: ${errorText}`, 'error');
+                        } catch (e) {
+                            addDebugMessage(`Не удалось прочитать текст ошибки: ${e.message}`, 'error');
+                        }
+                        
+                        return false;
+                    }
+
+                    const result = await response.json();
+                    addDebugMessage(`Получен ответ от API: ${JSON.stringify(result)}`, 'info');
+
+                    const isSubscribed = result.status === true;
+                    addDebugMessage(`Статус подписки: ${isSubscribed ? '✅ Подписан' : '❌ Не подписан'}`, isSubscribed ? 'success' : 'error');
+                    
+                    return isSubscribed;
+
+                } catch (fetchError) {
+                    clearTimeout(timeoutId);
+                    
+                    if (fetchError.name === 'AbortError') {
+                        addDebugMessage('❌ Запрос отменен по таймауту (10 сек)', 'error');
+                    } else {
+                        addDebugMessage(`❌ Ошибка fetch: ${fetchError.message}`, 'error');
+                    }
+                    
+                    return false;
+                }
+
+            } catch (error) {
+                addDebugMessage(`❌ Общее исключение при проверке подписки: ${error.message}`, 'error');
+                addDebugMessage(`Stack trace: ${error.stack || 'undefined'}`, 'error');
                 return false;
             }
-
-            const result = await response.json();
-            this.addDebugMessage(`Получен ответ от API: ${JSON.stringify(result)}`, 'info');
-
-            const isSubscribed = result.status === true;
-            this.addDebugMessage(`Статус подписки: ${isSubscribed ? '✅ Подписан' : '❌ Не подписан'}`, isSubscribed ? 'success' : 'error');
-            
-            return isSubscribed;
-
-        } catch (fetchError) {
-            clearTimeout(timeoutId);
-            
-            if (fetchError.name === 'AbortError') {
-                this.addDebugMessage('❌ Запрос отменен по таймауту (10 сек)', 'error');
-            } else {
-                this.addDebugMessage(`❌ Ошибка fetch: ${fetchError.message}`, 'error');
-            }
-            
-            // Попытка альтернативного запроса
-            return await this.tryAlternativeCheck(userId, languageCode);
         }
-
-    } catch (error) {
-        this.addDebugMessage(`❌ Общее исключение при проверке подписки: ${error.message}`, 'error');
-        this.addDebugMessage(`Stack trace: ${error.stack || 'undefined'}`, 'error');
-        return false;
-    }
-}
-
-// Альтернативный способ проверки через прокси или резервный метод
-async tryAlternativeCheck(userId, languageCode) {
-    try {
-        this.addDebugMessage('🔄 Пробуем альтернативный способ проверки...', 'info');
-        
-        // Вариант 1: Через другой endpoint или метод
-        // Можно попробовать GET запрос если API поддерживает
-        const getUrl = `${this.apiUrl}?key=${this.apiKey}&user_id=${userId}&language_code=${languageCode}`;
-        
-        const response = await fetch(getUrl, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            },
-            mode: 'no-cors' // Обход CORS
-        });
-        
-        this.addDebugMessage('✅ Альтернативный запрос выполнен', 'success');
-        
-        // При mode: 'no-cors' мы не можем прочитать ответ
-        // Поэтому считаем что пользователь не подписан
-        this.addDebugMessage('⚠️ Не удается проверить подписку из-за CORS. Доступ запрещен.', 'error');
-        return false;
-        
-    } catch (altError) {
-        this.addDebugMessage(`❌ Альтернативный способ также не работает: ${altError.message}`, 'error');
-        return false;
-    }
-}
-
 
         // Показ алерта и закрытие WebApp
         function showAlertAndClose(message) {
             addDebugMessage(`Показываем алерт: ${message}`, 'info');
-            
-            // if (tg && tg.showAlert) {
-            //     addDebugMessage('Используем tg.showAlert()', 'info');
-            //     tg.showAlert(message, () => {
-            //         addDebugMessage('Callback алерта выполнен, закрываем WebApp', 'info');
-            //         if (tg.close) {
-            //             tg.close();
-            //             addDebugMessage('tg.close() выполнен', 'info');
-            //         } else {
-            //             addDebugMessage('⚠️ tg.close() недоступен', 'error');
-            //         }
-            //     });
-            // } else {
-            //     addDebugMessage('⚠️ tg.showAlert() недоступен, используем alert()', 'error');
-            //     alert(message);
-            //     if (tg && tg.close) {
-            //         tg.close();
-            //     } else {
-            //         window.close();
-            //     }
-            // }
+            if (!debugMode) {
+                if (tg && tg.showAlert) {
+                    addDebugMessage('Используем tg.showAlert()', 'info');
+                    tg.showAlert(message, () => {
+                        addDebugMessage('Callback алерта выполнен, закрываем WebApp', 'info');
+                        if (tg.close) {
+                            tg.close();
+                            addDebugMessage('tg.close() выполнен', 'info');
+                        } else {
+                            addDebugMessage('⚠️ tg.close() недоступен', 'error');
+                        }
+                    });
+                } else {
+                    addDebugMessage('⚠️ tg.showAlert() недоступен, используем alert()', 'error');
+                    alert(message);
+                    if (tg && tg.close) {
+                        tg.close();
+                    } else {
+                        window.close();
+                    }
+                }
+            }
         }
 
         // Загрузка Unity игры
