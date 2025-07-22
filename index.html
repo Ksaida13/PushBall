@@ -115,6 +115,7 @@
                     console.log('Данные отправлены:', data);
                 } else {
                     console.error('Метод sendData недоступен');
+                    closeWebApp()
                 }
             } catch (error) {
                 console.error('Ошибка отправки данных:', error);
