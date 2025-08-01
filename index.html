@@ -71,10 +71,10 @@
                     }
                     
                     // Запрашиваем полноэкранный режим с задержкой для стабильности
-                    setTimeout(() => {
-                        if (tg.requestFullscreen) {
-                            tg.requestFullscreen();
-                        }
+                    // setTimeout(() => {
+                    //     if (tg.requestFullscreen) {
+                    //         tg.requestFullscreen();
+                    //     }
                         
                         // Отправляем данные валидации после полной инициализации
                         //sendValidationRequest();
@@ -179,10 +179,10 @@
                 }
                 
                 // Дополнительная попытка полноэкранного режима после загрузки Unity
-                setTimeout(() => {
-                    if (window.Telegram?.WebApp?.requestFullscreen) {
-                        window.Telegram.WebApp.requestFullscreen();
-                    }
+                // setTimeout(() => {
+                //     if (window.Telegram?.WebApp?.requestFullscreen) {
+                //         window.Telegram.WebApp.requestFullscreen();
+                //     }
                 }, 1000);
                 
                 console.log('Unity загружен успешно');
