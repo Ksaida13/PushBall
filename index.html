@@ -1,247 +1,77 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Push the block</title>
-    <!-- Telegram Web App API -->
-<!--     <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
-    <style>
-        body {
-            text-align: center;
-            padding: 0;
-            border: 0;
-            margin: 0;
-            overflow: hidden;
-        }
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Unity WebGL Player | Push the block</title>
+<style>
+body {
+text-align: center;
+padding: 0;
+border: 0;
+margin: 0;
+}
 
-        #loading-screen {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: #231F20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
+#loading-screen {
+position: fixed;
+width: 100%;
+height: 100%;
+background: #231F20;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+}
 
-        #unity-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #231F20;
-        }
-    </style>
+      canvas {
+/*       canvas {
+       width: 720px;
+       height: 1280px;
+       background: #231F20;
+      }
+      } */
+</style>
 </head>
-<body>
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <img src="loading.gif" alt="Loading...">
-    </div>
+<body style="text-align: center; padding: 0; border: 0; margin: 0;">
+<!-- Loading Screen -->
+<div id="loading-screen">
+<img src="loading.gif" alt="Loading...">
+</div>
 
-    <!-- Unity Canvas -->
-    <canvas id="unity-canvas" width="1080" height="1920"></canvas>
+<!-- Unity Canvas -->
+    <canvas id="unity-canvas" width=720 height=1280 style="width: 100%; height: 100%; background: #231F20"></canvas>
+    <canvas id="unity-canvas" width=1080 height=1920 style="width: 100%; height: 100%; background: #231F20"></canvas>
+<script src="Build/build0.loader.js"></script>
+<script>
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+// Mobile device style: fill the whole browser client area with the game canvas:
+var meta = document.createElement('meta');
+meta.name = 'viewport';
+meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+document.getElementsByTagName('head')[0].appendChild(meta);
 
-    <!-- Unity Loader Script -->
-    <script src="Build/build0.loader.js"></script>
+var canvas = document.querySelector("#unity-canvas");
+canvas.style.width = "100%";
+canvas.style.height = "100%";
+canvas.style.position = "fixed";
 
-    <script>
-        let unityInstance = null;
+document.body.style.textAlign = "left";
+}
 
-        // // Инициализация Telegram Web App
-        // function initTelegram() {
-        //     try {
-        //         if (window.Telegram && window.Telegram.WebApp) {
-        //             const tg = window.Telegram.WebApp;
-                    
-        //             // Готовим приложение
-        //             tg.ready();
-                    
-        //             // Расширяем на максимальную высоту
-        //             if (tg.expand) {
-        //                 tg.expand();
-        //             }
-                    
-        //             // Отключаем вертикальные swipe-жесты
-        //             if (tg.disableVerticalSwipes) {
-        //                 tg.disableVerticalSwipes();
-        //             }
-                    
-        //             // Запрашиваем полноэкранный режим с задержкой для стабильности
-        //             // setTimeout(() => {
-        //             //     if (tg.requestFullscreen) {
-        //             //         tg.requestFullscreen();
-        //             //     }
-                        
-        //                 // Отправляем данные валидации после полной инициализации
-        //                 //sendValidationRequest();
-        //             }, 1000);
-                    
-        //             console.log('Telegram Web App инициализирован');
-        //         } else {
-        //             console.log('Telegram Web App API недоступен');
-        //         }
-        //     } catch (error) {
-        //         console.error('Ошибка инициализации Telegram:', error);
-        //     }
-        // }
-
-        // // Функция для отправки данных валидации
-        // function sendValidationRequest() {
-        //     try {
-        //         if (!window.Telegram || !window.Telegram.WebApp) {
-        //             console.error('Telegram WebApp API не доступен');
-        //             return;
-        //         }
-                
-        //         const tg = window.Telegram.WebApp;
-                
-        //         if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-        //             console.error('Данные пользователя недоступны');
-        //             return;
-        //         }
-                
-        //         const data = {
-        //             action: 'validate_access',
-        //             user_id: tg.initDataUnsafe.user.id,
-        //             timestamp: Date.now()
-        //         };
-                
-        //         if (tg.sendData) {
-        //             tg.sendData(JSON.stringify(data));
-        //             console.log('Данные отправлены:', data);
-        //             closeWebApp()
-        //         } else {
-        //             console.error('Метод sendData недоступен');
-        //         }
-        //     } catch (error) {
-        //         console.error('Ошибка отправки данных:', error);
-        //     }
-        // }
-
-        // // Функция для закрытия WebApp
-        // function closeWebApp() {
-        //     if (window.Telegram?.WebApp?.close) {
-        //         window.Telegram.WebApp.close();
-        //     }
-        // }
-
-        // Настройки для мобильных устройств
-        function setupMobileCanvas() {
-            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                // Создаем viewport meta для мобильных устройств
-                const meta = document.createElement('meta');
-                meta.name = 'viewport';
-                meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover';
-                document.getElementsByTagName('head')[0].appendChild(meta);
-
-                // Настраиваем canvas для мобильных
-                const canvas = document.querySelector("#unity-canvas");
-                if (canvas) {
-                    canvas.style.width = "100vw";
-                    canvas.style.height = "100vh";
-                    canvas.style.position = "fixed";
-                    canvas.style.top = "0";
-                    canvas.style.left = "0";
-                }
-
-                document.body.style.textAlign = "left";
-            }
-        }
-
-        // Инициализация Unity
-        function initUnity() {
-            const canvas = document.querySelector("#unity-canvas");
-            if (!canvas) {
-                console.error('Canvas не найден');
-                return;
-            }
-
-            createUnityInstance(canvas, {
-                dataUrl: "Build/build0.data",
-                frameworkUrl: "Build/build0.framework.js",
-                codeUrl: "Build/build0.wasm",
-                streamingAssetsUrl: "StreamingAssets",
-                companyName: "GamePolygon",
-                productName: "Push the block",
-                productVersion: "0.1",
-                matchWebGLToCanvasSize: true
-            }).then((instance) => {
-                unityInstance = instance;
-                
-                // Скрываем экран загрузки
-                const loadingScreen = document.getElementById("loading-screen");
-                if (loadingScreen) {
-                    loadingScreen.style.display = "none";
-                }
-                
-                // Дополнительная попытка полноэкранного режима после загрузки Unity
-                // setTimeout(() => {
-                //     if (window.Telegram?.WebApp?.requestFullscreen) {
-                //         window.Telegram.WebApp.requestFullscreen();
-                //     }
-                // }, 1000);
-                
-                console.log('Unity загружен успешно');
-            }).catch((error) => {
-                console.error('Ошибка загрузки Unity:', error);
-                
-                // Скрываем экран загрузки даже при ошибке
-                const loadingScreen = document.getElementById("loading-screen");
-                if (loadingScreen) {
-                    loadingScreen.style.display = "none";
-                }
-            });
-        }
-
-        // // Инициализация при загрузке DOM
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     setupMobileCanvas();
-        //     initTelegram();
-        //     initUnity();
-        //     sendValidationRequest()
-        // });
-
-        // // Слушаем сообщения от бота
-        // window.addEventListener('message', (event) => {
-        //     if (event.data.type === 'validation_failed') {
-        //         closeWebApp();
-        //     }
-        // });
-
-        // // Предотвращаем случайное закрытие приложения
-        // window.addEventListener('beforeunload', function(e) {
-        //     if (window.Telegram?.WebApp?.exitFullscreen) {
-        //         window.Telegram.WebApp.exitFullscreen();
-        //     }
-        // });
-
-        // // Блокируем контекстное меню
-        // document.addEventListener('contextmenu', function(e) {
-        //     e.preventDefault();
-        //     return false;
-        // });
-
-        // // Предотвращаем зум на iOS
-        // document.addEventListener('touchstart', function(event) {
-        //     if (event.touches.length > 1) {
-        //         event.preventDefault();
-        //     }
-        // }, { passive: false });
-
-        // // Предотвращаем двойное нажатие для зума
-        // let lastTouchEnd = 0;
-        // document.addEventListener('touchend', function(event) {
-        //     const now = (new Date()).getTime();
-        //     if (now - lastTouchEnd <= 300) {
-        //         event.preventDefault();
-        //     }
-        //     lastTouchEnd = now;
-        // }, false);
-
-    </script>
+createUnityInstance(document.querySelector("#unity-canvas"), {
+dataUrl: "Build/build0.data",
+frameworkUrl: "Build/build0.framework.js",
+codeUrl: "Build/build0.wasm",
+streamingAssetsUrl: "StreamingAssets",
+companyName: "GamePolygon",
+productName: "Push the block",
+productVersion: "0.1",
+// matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+// devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+}).then(() => {
+// Hide loading screen when Unity loads
+document.getElementById("loading-screen").style.display = "none";
+});
+</script>
 </body>
 </html>
