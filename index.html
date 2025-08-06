@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Push the block</title>
     <!-- Telegram Web App API -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!--     <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
     <style>
         body {
             text-align: center;
@@ -51,83 +51,83 @@
     <script>
         let unityInstance = null;
 
-        // Инициализация Telegram Web App
-        function initTelegram() {
-            try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    const tg = window.Telegram.WebApp;
+        // // Инициализация Telegram Web App
+        // function initTelegram() {
+        //     try {
+        //         if (window.Telegram && window.Telegram.WebApp) {
+        //             const tg = window.Telegram.WebApp;
                     
-                    // Готовим приложение
-                    tg.ready();
+        //             // Готовим приложение
+        //             tg.ready();
                     
-                    // Расширяем на максимальную высоту
-                    if (tg.expand) {
-                        tg.expand();
-                    }
+        //             // Расширяем на максимальную высоту
+        //             if (tg.expand) {
+        //                 tg.expand();
+        //             }
                     
-                    // Отключаем вертикальные swipe-жесты
-                    if (tg.disableVerticalSwipes) {
-                        tg.disableVerticalSwipes();
-                    }
+        //             // Отключаем вертикальные swipe-жесты
+        //             if (tg.disableVerticalSwipes) {
+        //                 tg.disableVerticalSwipes();
+        //             }
                     
-                    // Запрашиваем полноэкранный режим с задержкой для стабильности
-                    // setTimeout(() => {
-                    //     if (tg.requestFullscreen) {
-                    //         tg.requestFullscreen();
-                    //     }
+        //             // Запрашиваем полноэкранный режим с задержкой для стабильности
+        //             // setTimeout(() => {
+        //             //     if (tg.requestFullscreen) {
+        //             //         tg.requestFullscreen();
+        //             //     }
                         
-                        // Отправляем данные валидации после полной инициализации
-                        //sendValidationRequest();
-                    }, 1000);
+        //                 // Отправляем данные валидации после полной инициализации
+        //                 //sendValidationRequest();
+        //             }, 1000);
                     
-                    console.log('Telegram Web App инициализирован');
-                } else {
-                    console.log('Telegram Web App API недоступен');
-                }
-            } catch (error) {
-                console.error('Ошибка инициализации Telegram:', error);
-            }
-        }
+        //             console.log('Telegram Web App инициализирован');
+        //         } else {
+        //             console.log('Telegram Web App API недоступен');
+        //         }
+        //     } catch (error) {
+        //         console.error('Ошибка инициализации Telegram:', error);
+        //     }
+        // }
 
-        // Функция для отправки данных валидации
-        function sendValidationRequest() {
-            try {
-                if (!window.Telegram || !window.Telegram.WebApp) {
-                    console.error('Telegram WebApp API не доступен');
-                    return;
-                }
+        // // Функция для отправки данных валидации
+        // function sendValidationRequest() {
+        //     try {
+        //         if (!window.Telegram || !window.Telegram.WebApp) {
+        //             console.error('Telegram WebApp API не доступен');
+        //             return;
+        //         }
                 
-                const tg = window.Telegram.WebApp;
+        //         const tg = window.Telegram.WebApp;
                 
-                if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                    console.error('Данные пользователя недоступны');
-                    return;
-                }
+        //         if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+        //             console.error('Данные пользователя недоступны');
+        //             return;
+        //         }
                 
-                const data = {
-                    action: 'validate_access',
-                    user_id: tg.initDataUnsafe.user.id,
-                    timestamp: Date.now()
-                };
+        //         const data = {
+        //             action: 'validate_access',
+        //             user_id: tg.initDataUnsafe.user.id,
+        //             timestamp: Date.now()
+        //         };
                 
-                if (tg.sendData) {
-                    tg.sendData(JSON.stringify(data));
-                    console.log('Данные отправлены:', data);
-                    closeWebApp()
-                } else {
-                    console.error('Метод sendData недоступен');
-                }
-            } catch (error) {
-                console.error('Ошибка отправки данных:', error);
-            }
-        }
+        //         if (tg.sendData) {
+        //             tg.sendData(JSON.stringify(data));
+        //             console.log('Данные отправлены:', data);
+        //             closeWebApp()
+        //         } else {
+        //             console.error('Метод sendData недоступен');
+        //         }
+        //     } catch (error) {
+        //         console.error('Ошибка отправки данных:', error);
+        //     }
+        // }
 
-        // Функция для закрытия WebApp
-        function closeWebApp() {
-            if (window.Telegram?.WebApp?.close) {
-                window.Telegram.WebApp.close();
-            }
-        }
+        // // Функция для закрытия WebApp
+        // function closeWebApp() {
+        //     if (window.Telegram?.WebApp?.close) {
+        //         window.Telegram.WebApp.close();
+        //     }
+        // }
 
         // Настройки для мобильных устройств
         function setupMobileCanvas() {
@@ -197,50 +197,50 @@
             });
         }
 
-        // Инициализация при загрузке DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            setupMobileCanvas();
-            initTelegram();
-            initUnity();
-            sendValidationRequest()
-        });
+        // // Инициализация при загрузке DOM
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     setupMobileCanvas();
+        //     initTelegram();
+        //     initUnity();
+        //     sendValidationRequest()
+        // });
 
-        // Слушаем сообщения от бота
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'validation_failed') {
-                closeWebApp();
-            }
-        });
+        // // Слушаем сообщения от бота
+        // window.addEventListener('message', (event) => {
+        //     if (event.data.type === 'validation_failed') {
+        //         closeWebApp();
+        //     }
+        // });
 
-        // Предотвращаем случайное закрытие приложения
-        window.addEventListener('beforeunload', function(e) {
-            if (window.Telegram?.WebApp?.exitFullscreen) {
-                window.Telegram.WebApp.exitFullscreen();
-            }
-        });
+        // // Предотвращаем случайное закрытие приложения
+        // window.addEventListener('beforeunload', function(e) {
+        //     if (window.Telegram?.WebApp?.exitFullscreen) {
+        //         window.Telegram.WebApp.exitFullscreen();
+        //     }
+        // });
 
-        // Блокируем контекстное меню
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
+        // // Блокируем контекстное меню
+        // document.addEventListener('contextmenu', function(e) {
+        //     e.preventDefault();
+        //     return false;
+        // });
 
-        // Предотвращаем зум на iOS
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
-        }, { passive: false });
+        // // Предотвращаем зум на iOS
+        // document.addEventListener('touchstart', function(event) {
+        //     if (event.touches.length > 1) {
+        //         event.preventDefault();
+        //     }
+        // }, { passive: false });
 
-        // Предотвращаем двойное нажатие для зума
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
+        // // Предотвращаем двойное нажатие для зума
+        // let lastTouchEnd = 0;
+        // document.addEventListener('touchend', function(event) {
+        //     const now = (new Date()).getTime();
+        //     if (now - lastTouchEnd <= 300) {
+        //         event.preventDefault();
+        //     }
+        //     lastTouchEnd = now;
+        // }, false);
 
     </script>
 </body>
